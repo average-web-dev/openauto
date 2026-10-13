@@ -159,7 +159,39 @@ WirelessController::WirelessController(configuration::IConfiguration::Pointer co
 
 WirelessController::~WirelessController()
 {
+    if(running_)
+    {
+        this->disconnectPhone();
+    }
     this->stop();
+}
+
+void WirelessController::disconnectPhone()
+{
+    // OpenHU quits: a phone left connected over Bluetooth does not start wireless Android Auto again on the
+    // next start until its Bluetooth reconnects. Only the phone: other devices (mouse, headset) stay.
+    QStringList paths;
+    if(!phaseDevicePath_.isEmpty())
+    {
+        paths << phaseDevicePath_;
+    }
+    const auto lastDevice = configuration_->getWirelessSettings().lastDevice;
+    if(!lastDevice.empty())
+    {
+        const QVariantMap device = bluetooth_.device(QString::fromStdString(lastDevice));
+        if(device.value("connected").toBool())
+        {
+            paths << device.value("path").toString();
+        }
+    }
+    paths.removeDuplicates();
+    for(const auto& path: paths)
+    {
+        // synchronous: the process ends right after this
+        const QString error = bluez::call(path, bluez::cDevice, "Disconnect");
+        OPENAUTO_LOG(info) << "[WirelessController] disconnected " << path.toStdString()
+                           << (error.isEmpty() ? std::string() : " (" + error.toStdString() + ")");
+    }
 }
 
 QString WirelessController::ssid() const

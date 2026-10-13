@@ -89,6 +89,7 @@ signals:
 private:
     void startBluetooth();
     void stopBluetooth();
+    void disconnectPhone();
     void closeStaleHeadsets();
     void connectPhones();
     void onHandshakeConnection(const QString& device, int fd);
