@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
     // exit() from inside the event loop tears down Qt's globals while the QML engine still exists (crash).
     auto shutdown = [&]() {
         carAudio.stop();
-        wirelessController.stop();
+        wirelessController.shutdown();
         pluginManager.stopAll();
         volumeController.stop();
         configuration->save();
@@ -292,7 +292,7 @@ int main(int argc, char* argv[])
                      &settingsController, &autoapp::shell::SettingsController::restart);
     QObject::connect(&settingsController, &autoapp::shell::SettingsController::aboutToRestart, [&]() {
         carAudio.stop();
-        wirelessController.stop();
+        wirelessController.shutdown();
         pluginManager.stopAll();
         volumeController.stop();
     });
@@ -345,14 +345,14 @@ int main(int argc, char* argv[])
             return;  // regular end of main()
         }
         if(carAudioAtExit) carAudioAtExit->stop();
-        wirelessAtExit->stop();
+        wirelessAtExit->shutdown();
         std::fflush(nullptr);
         std::_Exit(1);
     });
 
     auto result = application.exec();
     carAudio.stop();
-    wirelessController.stop();
+    wirelessController.shutdown();
     carAudioAtExit = nullptr;
     wirelessAtExit = nullptr;
 

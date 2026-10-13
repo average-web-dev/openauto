@@ -159,6 +159,11 @@ WirelessController::WirelessController(configuration::IConfiguration::Pointer co
 
 WirelessController::~WirelessController()
 {
+    this->stop();
+}
+
+void WirelessController::shutdown()
+{
     if(running_)
     {
         this->disconnectPhone();

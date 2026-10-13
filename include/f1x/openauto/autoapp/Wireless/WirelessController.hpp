@@ -69,6 +69,8 @@ public:
     // Starts or stops everything according to the configuration (also after settings changes)
     Q_INVOKABLE void apply();
     void stop();
+    // OpenHU quits or restarts: also disconnects the phone over Bluetooth, then stop()
+    void shutdown();
 
     // "Pair phone" button: switches wireless Android Auto on if needed, then makes OpenHU visible
     Q_INVOKABLE void pair();
